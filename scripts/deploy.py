@@ -24,6 +24,9 @@ def deploy():
     print("NFT contract deployed at " + str(nft) + "\n")
 
     print("Generating image...\n")
+    """
+    TODO - Generate Image
+    """
     image = generateImage()
     print("Image generated!\n")
     # print("IMAGE IS " + str(image))
