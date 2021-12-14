@@ -6,8 +6,8 @@ import os
 
 # sys.path.insert(1, '/content/taming-transformers')
 ROOT_DIR = os.path.dirname(os.path.abspath("scripts"))
-sys.path.insert(1,ROOT_DIR)
-print(sys.path)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(1,ROOT_DIR)
 
 from base64 import b64encode
 from omegaconf import OmegaConf

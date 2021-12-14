@@ -43,7 +43,9 @@ def download(url,filename):
   
 
 def install():
-  if imagenet_1024 == True:
+  print("Downloading models...")
+
+  if imagenet_1024:
     imagenet_1024_yaml_url = "https://heibox.uni-heidelberg.de/d/8088892a516d4e3baf92/files/?p=%2Fconfigs%2Fmodel.yaml&dl=1"
     imagenet_1024_ckpt_url = "https://heibox.uni-heidelberg.de/d/8088892a516d4e3baf92/files/?p=%2Fckpts%2Flast.ckpt&dl=1"
     downloaded["imagenet_1024_yaml"] = download(imagenet_1024_yaml_url,"vqgan_imagenet_f16_1024.yaml")

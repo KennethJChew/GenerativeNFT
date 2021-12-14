@@ -6,19 +6,22 @@ import torch
 """
 Setup details
 
-Set seed to a positive integer for a deterministic generated image. For a non-deterministic image, set seed to -1.
+
 """
-texts = "white dragon breathing fire on a castle" 
+texts = "white dragon:0.2 | samurai oni:2" 
 width =  300
 height = 300
 model_path = "models/"
-model = "wikiart_16384"
+model = "sflckr"
 images_interval =  50
-init_image = ""
+# Enter file path to the initial and/or target images
+init_image = "img/bg.jpeg"
 target_images = ""
-
+# Set seed to a positive integer for a deterministic generated image. For a non-deterministic image, set seed to -1.
 seed = 666
 max_iterations = 300
+output_folder = "./steps/"
+interval_output_folder = output_folder + "intervals/"
 
 model_names={"vqgan_imagenet_f16_16384": 'ImageNet 16384',"vqgan_imagenet_f16_1024":"ImageNet 1024", 'vqgan_openimages_f16_8192':'OpenImages 8912',
                  "wikiart_1024":"WikiArt 1024", "wikiart_16384":"WikiArt 16384", "coco":"COCO-Stuff", "faceshq":"FacesHQ", "sflckr":"S-FLCKR"}
@@ -51,6 +54,7 @@ args = argparse.Namespace(
     vqgan_config=f'{model}.yaml',
     vqgan_checkpoint=f'{model}.ckpt',
     step_size=0.1,
+    # Augmentations Per Iteration. Turn this down if you're running out of memory.
     cutn=32,
     cut_pow=1.,
     display_freq=images_interval,
@@ -165,9 +169,9 @@ def checkin(i, losses):
     # TODO - change to remove display and use pil.show image for testing. In production we will not show the intervals
     # TF.to_pil_image(out[0].cpu()).save('progress.png')
     # display.display(display.Image('progress.png'))
-
-    interval_img = TF.to_pil_image(out[0].cpu()).save('progress.png')
-    with Image.open("progress.png") as img:
+    interval_img_name = interval_output_folder + "progress" + str(i)+".png"
+    interval_img = TF.to_pil_image(out[0].cpu()).save(interval_img_name)
+    with Image.open(interval_img_name) as img:
         img.show()
 
 
@@ -185,7 +189,9 @@ def ascend_txt():
         result.append(prompt(iii))
     img = np.array(out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(np.uint8))[:,:,:]
     img = np.transpose(img, (1, 2, 0))
-    imageio.imwrite('./steps/' + str(i) + '.png', np.array(img))
+    # save each iteration to folder
+
+    imageio.imwrite(output_folder + str(i) + '.png', np.array(img))
 
     return result
 
@@ -201,6 +207,8 @@ def train(i):
     with torch.no_grad():
         z.copy_(z.maximum(z_min).minimum(z_max))
 
+
+# Runs the generation
 i = 0
 try:
     with tqdm() as pbar:
